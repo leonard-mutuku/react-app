@@ -1,25 +1,30 @@
-import logo from './logo.svg';
+import "react-datepicker/dist/react-datepicker.css";
 import './App.css';
+import Home from './Home';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { ProtectedRoute } from './ProtectedRoute';
+import Login from './Login';
+import CreateAccount from './CreateAccount';
+import ClientList from './ClientList';
+import ClientEdit from './ClientEdit';
+import Dashboard from './Dashboard';
+import NotFound from './NotFound';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+
+    return (
+            <Router>
+                <Switch>
+                    <Route path="/" exact={true} component={Home} />
+                    <Route path="/login" exact={true} component={Login} />
+                    <Route path="/create-account" exact={true} component={CreateAccount} />
+                    <ProtectedRoute path="/clients" exact={true} component={ClientList} />
+                    <ProtectedRoute path="/clients/:id" component={ClientEdit} />
+                    <ProtectedRoute path="/dashboard" exact={true} component={Dashboard} />
+                    <Route component={NotFound} />
+                </Switch>
+            </Router>
+    );
+};
 
 export default App;
