@@ -48,8 +48,11 @@ const Login = (props) => {
             <AppNavbar/>
             <div className="flex-1 tbl-dsp">
                 <Container className="tbl-cell-dsp">
-                    <div className="form-div pnl">
-                        <h2 className="form-hdr txt-clip text-center"><span className="linear-cl">Customer Login Here!</span></h2>
+                    <div className="form-div pnl login">
+                        <div className="text-center">
+                            <img src="/avatar.png" alt="" style={{borderRadius: '50%'}} />
+                            <h2 className="form-hdr txt-clip"><span><span className="linear-cl">Customer Login</span></span></h2>
+                        </div>
                         <Form onSubmit={handleSubmit}>
                             <TextField
                                 type="text" name="username" label="Username" inputData={inputData} required={true} autoFocus={true}

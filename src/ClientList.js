@@ -78,6 +78,10 @@ export default function ClientList(props) {
         }, timer);
     }
 
+    const handleAddNew = () => {
+        props.history.push("/clients/new");
+    }
+
     const clientList = data.clients.map(client => {
         return <tr key={client.id}>
         <td>{client.firstName}</td>
@@ -104,7 +108,7 @@ export default function ClientList(props) {
                                         <Input type="text" onKeyUp={handleFilter} name="filter" id="filter-txt" className="animate" placeholder="Filter text ..." />
                                     </div>
                                     <div className="float-right ovf-vis">
-                                        <Button color="success" tag={Link} to={"/clients/new"}><PlusLg /> Add New</Button>
+                                        <Button color="success" onClick={handleAddNew}><PlusLg /> Add New</Button>
                                     </div>
                                 </div>
                                 <div style={{overflowX: 'auto'}}>
