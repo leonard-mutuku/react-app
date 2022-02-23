@@ -28,7 +28,7 @@ export const useFetch = (props) => {
         const code = error.code;
         if ([401, 403].includes(code)) {
             setLogout();
-            history.push('/login');
+            history.push({pathname: "/login", state: {from: props.location.pathname}});
         } else {
             const msg = (code === 255) ? 'Error encountered while formatting data!' : 'Error encountered while fetching data!';
             alert({class: 'danger', msg: msg});

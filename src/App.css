@@ -129,7 +129,7 @@ p {margin: 5px 0 7px;}
 .form-control:-webkit-autofill {
     border-color: var(--input-border);
     -webkit-text-fill-color: var(--txt-color);
-    -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-color) inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }
 .form-control:focus {
@@ -180,7 +180,7 @@ input[type=checkbox] + label:active:before {
 }
 input[type=checkbox]:checked + label:before {
   background-color: var(--active-color);
-  border-color: var(--active-color);
+  border-color: #ddd;
   color: #fff;
 }
 .table {
@@ -197,6 +197,7 @@ input[type=checkbox]:checked + label:before {
     background: var(--pnl-bg);
 }
 .table>thead tr {
+    /*background: linear-gradient(256.7deg,#354ea2 0, #44c4f7 100%);*/
     background: linear-gradient(256.7deg,#1b6988 0,var(--active-color) 100%);
 }
 .table>thead tr>td{
@@ -216,7 +217,7 @@ input[type=checkbox]:checked + label:before {
 }
 #filter-txt {max-width: 250px;}
 #filter-txt:focus {max-width: 300px;}
-.table .btn {
+.table .btn, .filter-div .actions {
     opacity: .75;
     padding: .25em .5em;
     color: var(--txt-color);

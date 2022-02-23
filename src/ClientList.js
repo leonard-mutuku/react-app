@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Container, Table, Input } from 'reactstrap';
+import { Button, Container, Table, Input, Label } from 'reactstrap';
 import { trackPromise } from 'react-promise-tracker';
 import { Link } from 'react-router-dom';
 import { PlusLg, PencilSquare, TrashFill } from 'react-bootstrap-icons';
@@ -16,6 +16,7 @@ export default function ClientList(props) {
     const [data, setData] = useState(obj);
     let timeout = null;
     const [filter, setFilter] = useState('');
+    const [checked, setChecked] = useState([]);
 
     const { handleResponse, handleError } = useFetch();
     const pagination = usePagination();
@@ -40,27 +41,39 @@ export default function ClientList(props) {
                     })
         );
     }
+
+    const removeClients = async () => {
+        const isConfirmed = await confirm({title: 'Confirm Delete?', body: 'Please confirm delete of '+checked.length+' selected items'});
+        if (isConfirmed) {
+            deleteClients(checked);
+        }
+    }
     
-    const remove = async (client) => {
+    const removeClient = async (client) => {
         const isConfirmed = await confirm({title: 'Confirm Delete?', body: 'Please confirm delete of ' + client.firstName});
         if (isConfirmed) {
             const id = client.id
-            const filterStr = filter ? '&filter='+filter : '';
-            await fetch(`/clients/${id}?offset=`+offset+`&limit=`+limit+filterStr, {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => handleResponse(res, true))
-            .then((res) => {
-                let updatedClients = [...data.clients].filter(c => c.id !== id);
-                if (res.clients.length > 0) updatedClients = [...updatedClients, ...res.clients];
-                setData({clients: updatedClients, size: res.size});
-            })
-            .catch(handleError);
+            deleteClients(id);
         }
+    }
+
+    const deleteClients = async (ids) => {
+        const filterStr = filter ? '&filter='+filter : '';
+        await fetch(`/clients/${ids}?offset=`+offset+`&limit=`+limit+filterStr, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => handleResponse(res, true))
+        .then((res) => {
+            let updatedClients = [...data.clients].filter(c => !ids.includes(c.id));
+            if (res.clients.length > 0) updatedClients = [...updatedClients, ...res.clients];
+            setData({clients: updatedClients, size: res.size});
+            setChecked([]);
+        })
+        .catch(handleError);
     }
 
     const handleFilter = (event) => {
@@ -82,15 +95,39 @@ export default function ClientList(props) {
         props.history.push("/clients/new");
     }
 
+    const handleChecked = (e) => {
+        const val = parseInt(e.target.value);
+        const check = e.target.checked;
+        if (check) {
+            setChecked([...checked, val]);
+        } else {
+            setChecked(check => check.filter(c => c !== val));
+        }
+    }
+
+    const handleCheckAll = (e) => {
+        const check = e.target.checked;
+        if (check) {
+            setChecked(data.clients.map(c => c.id));
+        } else {
+            setChecked([]);
+        }
+    }
+
+    const masterSelect = (checked.length === data.clients.length && checked.length > 0) ? true : false;
+
     const clientList = data.clients.map(client => {
-        return <tr key={client.id}>
+        const id = client.id;
+        const chkId = 'check-' + id;
+        return <tr key={id}>
+        <td><input type="checkbox" id={chkId} onChange={handleChecked} checked={checked.includes(id)} value={id} /><Label for={chkId}></Label></td>
         <td>{client.firstName}</td>
         <td>{client.lastName}</td>
         <td>{client.email}</td>
         <td>{client.phoneNumber}</td>
         <td>
             <Button color="default" className="btn-edit btn-icon" tag={Link} to={"/clients/" + client.id} title={'Edit '+client.firstName}><PencilSquare /></Button>
-            <Button color="default" className="btn-delete btn-icon" onClick={() => remove(client)} title={'Delete '+client.firstName}><TrashFill /></Button>
+            <Button color="default" className="btn-delete btn-icon" onClick={() => removeClient(client)} title={'Delete '+client.firstName}><TrashFill /></Button>
         </td>
         </tr>
     });
@@ -104,7 +141,8 @@ export default function ClientList(props) {
                         <div id="right-middle" className="flex-1">
                             <Container>
                                 <div className="pnl hdr flex filter-div">
-                                    <div className="flex-1">
+                                    <div className="flex-1 flex">
+                                        {(checked.length > 0) ? <Button color="default" className="btn-delete btn-icon actions" onClick={removeClients}><TrashFill /></Button> : null}
                                         <Input type="text" onKeyUp={handleFilter} name="filter" id="filter-txt" className="animate" placeholder="Filter text ..." />
                                     </div>
                                     <div className="float-right ovf-vis">
@@ -115,9 +153,10 @@ export default function ClientList(props) {
                                     <Table className="table">
                                         <thead>
                                         <tr>
+                                            <td width="5%"><input type="checkbox" id="check-all" onChange={handleCheckAll} checked={masterSelect} /><Label for="check-all"></Label></td>
                                             <td width="20%">First Name</td>
                                             <td width="20%">last Name</td>
-                                            <td width="30%">Email</td>
+                                            <td width="25%">Email</td>
                                             <td width="20%">Phone Number</td>
                                             <td width="10%">Actions</td>
                                         </tr>
