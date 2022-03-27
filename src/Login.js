@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import AppNavbar from './AppNavbar';
 import RightBottom from './components/RightBottom';
 import { TextField } from './components/TextField';
-import { validateForm } from './components/Validate';
+import { validateForm, hashPassword } from './components/Validate';
 import { useAuth } from './hooks/useAuth';
 import { useAlert } from './hooks/useAlert';
 
@@ -29,7 +29,9 @@ const Login = (props) => {
         const isValid = validateForm(formData, setErrors);
         if (isValid) {
             const url = state?.from || "/dashboard";
-            login(formData, (res) => {
+            const password = hashPassword(formData.password);
+            const data = {...formData, password};
+            login(data, (res) => {
                 if (res.loggedIn) {
                     props.history.push(url);
                 } else {

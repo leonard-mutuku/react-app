@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Form, FormGroup, Label, Button } from 'reactstrap';
 import {Link} from 'react-router-dom';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import AppNavbar from './AppNavbar';
 import RightBottom from './components/RightBottom';
 import { TextField } from './components/TextField';
-import { validateField, validateForm } from './components/Validate';
+import { validateField, validateForm, hashPassword } from './components/Validate';
 import { trackPromise } from 'react-promise-tracker';
 import { useAlert } from './hooks/useAlert';
 
-const CreateAccount = () => {
+const CreateAccount = (props) => {
     const obj = {firstName: "", lastName: "", idNumber: "", phoneNumber: "", emailAddress: "", password: "", confirmPassword: "", terms: false};
     const showPassObj = {password: false, confirmPassword: false};
 
@@ -17,10 +17,15 @@ const CreateAccount = () => {
     const [errors, setErrors] = useState(obj);
     const [showPass, setShowPass] = useState(showPassObj);
     const [registerMsg, setRegisterMsg] = useState(null);
+    const [intervalID, setIntervalID] = useState(null);
 
     const inputData = [formData, setFormData, errors, setErrors, showPass, setShowPass];
 
     const alert = useAlert();
+
+    useEffect(() => {
+        return () => clearInterval(intervalID);
+    }, [intervalID]);
 
     const handleCheck = (event) => {
         const target = event.target;
@@ -35,6 +40,9 @@ const CreateAccount = () => {
 
         const isValid = validateForm(formData, setErrors);
         if(isValid) {
+            const password = hashPassword(formData.password);
+            const confirmPassword = hashPassword(formData.confirmPassword);
+            const data = {...formData, password, confirmPassword};
             trackPromise(
                 fetch('/user/register', {
                     method: 'POST',
@@ -42,12 +50,13 @@ const CreateAccount = () => {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(data)
                 })
                 .then(res => res.json())
                 .then(res => {
                     const cls = (res.code === 0) ? 'success' : 'danger';
                     setRegisterMsg({cls: cls, msg: res.msg});
+                    if (res.code === 0) redirectTimer(cls, res.msg);
                 })
                 .catch(err => {
                     console.log(err);
@@ -55,6 +64,19 @@ const CreateAccount = () => {
                 })
             );
         }
+    }
+
+    const redirectTimer = (cls, msg) => {
+        let secs = 5;
+        const interval = setInterval(() => {
+            if (secs === 0) {
+                props.history.push('/login');
+            }
+            const message = msg + ' Redirect to login in '+secs+' second(s).';
+            setRegisterMsg({cls: cls, msg: message});
+            secs --;
+        }, 1000);
+        setIntervalID(interval);
     }
 
     const handleClose = () => {

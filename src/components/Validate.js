@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 
 const fieldName = (name) => {
     let str = name.split(/(?=[A-Z])/).join(' ');
@@ -54,4 +55,10 @@ const validateForm = (formData, setErrors) => {
     return isValid;
 }
 
-export { validateField, validateForm };
+const hashPassword = (password) => {
+    const salt = '$2a$10$gOMB4WvF9tGBk6KgAUGFfO';
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    return hashedPassword;
+}
+
+export { validateField, validateForm, hashPassword };
