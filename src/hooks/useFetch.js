@@ -1,9 +1,10 @@
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useAlert } from './useAlert';
 import { useAuth } from './useAuth';
 
-export const useFetch = (props) => {
+export const useFetch = () => {
     const history = useHistory();
+    const location = useLocation();
     const alert = useAlert();
     const { setLogout } = useAuth();
 
@@ -28,7 +29,7 @@ export const useFetch = (props) => {
         const code = error.code;
         if ([401, 403].includes(code)) {
             setLogout();
-            history.push({pathname: "/login", state: {from: props.location.pathname}});
+            history.push({pathname: "/login", state: {from: location.pathname}});
         } else {
             const msg = (code === 255) ? 'Error encountered while formatting data!' : 'Error encountered while fetching data!';
             alert({class: 'danger', msg: msg});

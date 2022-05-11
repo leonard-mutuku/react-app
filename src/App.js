@@ -8,6 +8,7 @@ import CreateAccount from './CreateAccount';
 import ClientList from './ClientList';
 import ClientEdit from './ClientEdit';
 import Dashboard from './Dashboard';
+import ContactUs from './ContactUs';
 import NotFound from './NotFound';
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
                     <ProtectedRoute path="/clients" exact={true} component={ClientList} />
                     <ProtectedRoute path="/clients/:id" component={ClientEdit} />
                     <ProtectedRoute path="/dashboard" exact={true} component={Dashboard} />
+                    <Route path="/contact-us" exact={true} component={ContactUs} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>

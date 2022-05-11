@@ -7,6 +7,7 @@ import RightBottom from './components/RightBottom';
 import { TextField } from './components/TextField';
 import { validateField, validateForm, hashPassword } from './components/Validate';
 import { trackPromise } from 'react-promise-tracker';
+import { useFetch } from './hooks/useFetch';
 import { useAlert } from './hooks/useAlert';
 
 const CreateAccount = (props) => {
@@ -21,6 +22,7 @@ const CreateAccount = (props) => {
 
     const inputData = [formData, setFormData, errors, setErrors, showPass, setShowPass];
 
+    const { handleResponse } = useFetch();
     const alert = useAlert();
 
     useEffect(() => {
@@ -52,7 +54,7 @@ const CreateAccount = (props) => {
                     },
                     body: JSON.stringify(data)
                 })
-                .then(res => res.json())
+                .then(res => handleResponse(res, true))
                 .then(res => {
                     const cls = (res.code === 0) ? 'success' : 'danger';
                     setRegisterMsg({cls: cls, msg: res.msg});

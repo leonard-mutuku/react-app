@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button, Container, Table, Input, Label } from 'reactstrap';
 import { trackPromise } from 'react-promise-tracker';
 import { Link } from 'react-router-dom';
-import { PlusLg, PencilSquare, TrashFill } from 'react-bootstrap-icons';
+import { PlusLg, PencilSquare, TrashFill, XLg } from 'react-bootstrap-icons';
 import LeftNav from './components/LeftNav';
 import RightTop from './components/RightTop';
 import RightBottom from './components/RightBottom';
@@ -17,6 +17,7 @@ export default function ClientList(props) {
     let timeout = null;
     const [filter, setFilter] = useState('');
     const [checked, setChecked] = useState([]);
+    const [filterVal, setFilterVal] = useState('');
 
     const { handleResponse, handleError } = useFetch();
     const pagination = usePagination();
@@ -42,8 +43,16 @@ export default function ClientList(props) {
         );
     }
 
+    const getSelectedNames = async () => {
+        const selectedClients = [...data.clients].filter(c => checked.includes(c.id));
+        const names = selectedClients.map(client => client.firstName);
+        const namesStr = names.length > 1 ? names.slice(0, -1).join(', ') +' and '+ names.slice(-1) : names.join(', ');
+        return namesStr;
+    }
+
     const removeClients = async () => {
-        const isConfirmed = await confirm({title: 'Confirm Delete?', body: 'Please confirm delete of '+checked.length+' selected items'});
+        const names = await getSelectedNames();
+        const isConfirmed = await confirm({title: 'Confirm Delete?', body: 'Please confirm delete of '+names});
         if (isConfirmed) {
             deleteClients(checked);
         }
@@ -52,7 +61,7 @@ export default function ClientList(props) {
     const removeClient = async (client) => {
         const isConfirmed = await confirm({title: 'Confirm Delete?', body: 'Please confirm delete of ' + client.firstName});
         if (isConfirmed) {
-            const id = client.id
+            const id = [client.id];
             deleteClients(id);
         }
     }
@@ -89,6 +98,16 @@ export default function ClientList(props) {
                 setFilter(value);
             }
         }, timer);
+    }
+
+    const handleChange = (event) => {
+        const value = event.target.value.trim();
+        setFilterVal(value);
+    }
+
+    const handleClearFilter = () => {
+        setFilter('');
+        setFilterVal('');
     }
 
     const handleAddNew = () => {
@@ -143,13 +162,16 @@ export default function ClientList(props) {
                                 <div className="pnl hdr flex filter-div">
                                     <div className="flex-1 flex">
                                         {(checked.length > 0) ? <Button color="default" className="btn-delete btn-icon actions" onClick={removeClients}><TrashFill /></Button> : null}
-                                        <Input type="text" onKeyUp={handleFilter} name="filter" id="filter-txt" className="animate" placeholder="Filter text ..." />
+                                        <div style={{position: 'relative'}}>
+                                            <Input type="text" onKeyUp={handleFilter} onChange={handleChange} value={filterVal} name="filter" id="filter-txt" className="animate" placeholder="Filter text ..." />
+                                            {filterVal && <Button color="default" className="btn-icon show-pass" onClick={handleClearFilter}><XLg /></Button>}
+                                        </div>
                                     </div>
                                     <div className="float-right ovf-vis">
                                         <Button color="success" onClick={handleAddNew}><PlusLg /> Add New</Button>
                                     </div>
                                 </div>
-                                <div style={{overflowX: 'auto'}}>
+                                <div style={{overflowX: 'auto', boxShadow: '0 3px 25px rgb(0 0 0 / 6%)'}}>
                                     <Table className="table">
                                         <thead>
                                         <tr>
