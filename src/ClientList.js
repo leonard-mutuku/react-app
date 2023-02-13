@@ -21,7 +21,7 @@ export default function ClientList(props) {
 
     const { handleResponse, handleError } = useFetch();
     const pagination = usePagination();
-    const {offset, limit, currentPage} = pagination;
+    const {offset, limit, currentPage, handleCurrentPageFilter} = pagination;
     const {confirm} = useConfirm();
     
     useEffect(() => {
@@ -96,6 +96,7 @@ export default function ClientList(props) {
             const length = value.length;
             if (length === 0 || length > 2) {
                 setFilter(value);
+                handleCurrentPageFilter(length, data.size);
             }
         }, timer);
     }
@@ -108,6 +109,7 @@ export default function ClientList(props) {
     const handleClearFilter = () => {
         setFilter('');
         setFilterVal('');
+        handleCurrentPageFilter(0, data.size)
     }
 
     const handleAddNew = () => {
